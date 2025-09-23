@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Pacman Runner</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to bottom, #D9FCC0 0%, #D9FCC0 70%, #C1F79B 70%, #3D9400 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        canvas {
+            border: 2px solid #333;
+            background: linear-gradient(to bottom, #D9FCC0 0%, #D9FCC0 70%, #C1F79B 70%, #3D9400 100%);
+            max-width: 100vw;
+            max-height: 100vh;
+            width: auto;
+            height: auto;
+            display: block;
+        }
+        
+        /* Адаптация для мобильных */
+        @media (max-width: 430px) {
+            canvas {
+                width: 100vw;
+                height: 100vh;
+                border: none;
+            }
+            body {
+                padding: 0;
+                margin: 0;
+            }
+            .instructions, .game-over {
+                font-size: 16px;
+            }
+        }
+        
+        @media (max-height: 900px) {
+            canvas {
+                height: 100vh;
+                width: auto;
+            }
+        }
+        
+        .instructions {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #223B12;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 100;
+        }
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #223B12;
+            font-size: 48px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(255,255,255,0.8);
+            display: none;
+            text-align: center;
+            z-index: 100;
+        }
+        
+        .restart-button {
+            background: #2E2F33;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
+            font-family: Arial, sans-serif;
+        }
+        
+        .restart-button:hover {
+            background: #2D7000;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+        }
+        
+        .restart-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        /* Мобильная адаптация кнопки */
+        @media (max-width: 430px) {
+            .restart-button {
+                font-size: 20px;
+                padding: 12px 24px;
+                border-radius: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="instructions">
+        Нажмите экран для прыжка | Очки: <span id="score">0</span>
+    </div>
+    <canvas id="gameCanvas" width="390" height="844"></canvas>
+    <div class="game-over" id="gameOver">
+        ИГРА ОКОНЧЕНА<br>
+        <button id="restartBtn" class="restart-button">🔄 НАЧАТЬ ЗАНОВО</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        const gameOverElement = document.getElementById('gameOver');
+        const restartBtn = document.getElementById('restartBtn');
+
+        let gameRunning = true;
+        let score = 0;
+        let gameSpeed = 3;
+
+        const pacman = {
+            x: 60,
+            y: 650,
+            width: 40,
+            height: 40,
+            velocityY: 0,
+            jumping: false,
+            onGround: true,
+            scaleX: 1,
+            scaleY: 1,
+            rotation: 0
+        };
+
+        const pacmanImg = new Image();
+        pacmanImg.src = 'https://i.ibb.co/PGx61jWg/Watermelon.png';
+        let imageLoaded = false;
+        pacmanImg.onload = function() {
+            imageLoaded = true;
+        };
+
+        let backgroundX = 0;
+        let holes = [];
+        let coins = [];
+        let coinFragments = [];
+        let holeSpawnTimer = 0;
+        let coinSpawnTimer = 0;
+
+        const gravity = 0.6;
+        const jumpPower = -16;
+        const groundY = 650;
+        const airResistance = 0.98;
+        const maxFallSpeed = 12;
+
+        function drawPacman() {
+            ctx.save();
+            
+            const centerX = pacman.x + pacman.width / 2;
+            const centerY = pacman.y + pacman.height / 2;
+            
+            ctx.translate(centerX, centerY);
+            ctx.rotate(pacman.rotation);
+            ctx.scale(pacman.scaleX, pacman.scaleY);
+            
+            if (imageLoaded) {
+                ctx.drawImage(pacmanImg, -pacman.width/2, -pacman.height/2, pacman.width, pacman.height);
+            } else {
+                ctx.fillStyle = '#00FF00';
+                ctx.beginPath();
+                ctx.arc(0, 0, pacman.width/2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            ctx.restore();
+        }
+
+        function drawBackground() {
+            ctx.fillStyle = '#9FF067';
+            for (let i = 0; i < 3; i++) {
+                const cloudX = (backgroundX * 0.3 + i * 300) % (canvas.width + 100);
+                drawCloud(cloudX - 100, 80 + i * 40);
+            }
+
+            ctx.fillStyle = '#3D9400';
+            ctx.fillRect(0, groundY + pacman.height, canvas.width, canvas.height - groundY - pacman.height);
+            
+            ctx.fillStyle = '#C1F79B';
+            for (let i = 0; i < canvas.width; i += 20) {
+                const grassX = (backgroundX + i) % (canvas.width + 20);
+                ctx.fillRect(grassX - 20, groundY + pacman.height, 15, 10);
+            }
+        }
+
+        function drawCloud(x, y) {
+            ctx.beginPath();
+            ctx.arc(x + 25, y, 25, Math.PI, 0);
+            ctx.fill();
+        }
+
+        function drawHoles() {
+            ctx.fillStyle = '#223B12';
+            for (let i = 0; i < holes.length; i++) {
+                const hole = holes[i];
+                ctx.fillRect(hole.x, groundY + pacman.height, hole.width, canvas.height - (groundY + pacman.height));
+            }
+        }
+
+        function drawCoins() {
+            for (let i = 0; i < coins.length; i++) {
+                const coin = coins[i];
+                ctx.fillStyle = '#FFD700';
+                ctx.strokeStyle = '#FFA500';
+                ctx.lineWidth = 2;
+                
+                ctx.beginPath();
+                ctx.arc(coin.x + coin.size/2, coin.y + coin.size/2, coin.size/2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+                
+                ctx.fillStyle = '#FFA500';
+                ctx.font = Math.floor(coin.size * 0.6) + 'px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('$', coin.x + coin.size/2, coin.y + coin.size/2 + coin.size * 0.15);
+            }
+            
+            for (let i = 0; i < coinFragments.length; i++) {
+                const fragment = coinFragments[i];
+                if (fragment.alpha > 0) {
+                    ctx.fillStyle = 'rgba(255, 215, 0, ' + fragment.alpha + ')';
+                    ctx.strokeStyle = 'rgba(255, 165, 0, ' + fragment.alpha + ')';
+                    ctx.lineWidth = 1;
+                    
+                    ctx.beginPath();
+                    ctx.arc(fragment.x, fragment.y, fragment.size, 0, Math.PI);
+                    ctx.fill();
+                    ctx.stroke();
+                }
+            }
+        }
+
+        function spawnHole() {
+            holes.push({
+                x: canvas.width,
+                width: 40 + Math.random() * 30
+            });
+        }
+
+        function spawnCoin() {
+            const maxJumpHeight = 200;
+            const minCoinY = groundY - maxJumpHeight;
+            
+            coins.push({
+                x: canvas.width,
+                y: minCoinY + Math.random() * (maxJumpHeight - 100),
+                size: 20 + Math.random() * 10,
+                speed: gameSpeed + Math.random() * 2
+            });
+        }
+
+        function updateHoles() {
+            for (let i = 0; i < holes.length; i++) {
+                holes[i].x -= gameSpeed;
+            }
+
+            holes = holes.filter(function(hole) {
+                return hole.x + hole.width > -50;
+            });
+
+            holeSpawnTimer++;
+            if (holeSpawnTimer > 120 + Math.random() * 180) {
+                spawnHole();
+                holeSpawnTimer = 0;
+            }
+        }
+
+        function updateCoins() {
+            for (let i = 0; i < coins.length; i++) {
+                coins[i].x -= coins[i].speed;
+            }
+
+            coins = coins.filter(function(coin) {
+                return coin.x + coin.size > -50;
+            });
+
+            coinSpawnTimer++;
+            if (coinSpawnTimer > 80 + Math.random() * 120) {
+                spawnCoin();
+                coinSpawnTimer = 0;
+            }
+
+            for (let i = coinFragments.length - 1; i >= 0; i--) {
+                const fragment = coinFragments[i];
+                fragment.x += fragment.velocityX;
+                fragment.y += fragment.velocityY;
+                fragment.velocityY += 0.3;
+                fragment.alpha -= 0.02;
+                
+                if (fragment.alpha <= 0) {
+                    coinFragments.splice(i, 1);
+                }
+            }
+        }
+
+        function createCoinFragments(coin) {
+            for (let i = 0; i < 2; i++) {
+                coinFragments.push({
+                    x: coin.x + coin.size/2,
+                    y: coin.y + coin.size/2,
+                    size: coin.size/3,
+                    velocityX: (i === 0 ? -1 : 1) * (2 + Math.random() * 3),
+                    velocityY: -3 - Math.random() * 2,
+                    alpha: 1.0
+                });
+            }
+        }
+
+        function updatePacmanScale() {
+            const velocityFactor = Math.abs(pacman.velocityY) * 0.02;
+            
+            if (pacman.velocityY < -5) {
+                pacman.scaleX = Math.max(0.8, 1 - velocityFactor);
+                pacman.scaleY = Math.min(1.3, 1 + velocityFactor);
+            } else if (pacman.velocityY > 5) {
+                pacman.scaleX = Math.min(1.2, 1 + velocityFactor * 0.5);
+                pacman.scaleY = Math.max(0.7, 1 - velocityFactor);
+            } else {
+                pacman.scaleX += (1 - pacman.scaleX) * 0.15;
+                pacman.scaleY += (1 - pacman.scaleY) * 0.15;
+            }
+            
+            if (!pacman.onGround) {
+                pacman.rotation += pacman.velocityY * 0.01;
+            } else {
+                const rotationSpeed = gameSpeed * 0.05;
+                pacman.rotation += rotationSpeed;
+                
+                if (pacman.rotation > Math.PI * 4) {
+                    pacman.rotation -= Math.PI * 4;
+                }
+            }
+        }
+
+        function updatePacman() {
+            if (!pacman.onGround) {
+                const gravityMultiplier = pacman.velocityY > 0 ? 1.4 : 1.0;
+                pacman.velocityY += gravity * gravityMultiplier;
+                pacman.velocityY *= airResistance;
+                
+                if (pacman.velocityY > maxFallSpeed) {
+                    pacman.velocityY = maxFallSpeed;
+                }
+            }
+
+            pacman.y += pacman.velocityY;
+
+            if (pacman.y >= groundY) {
+                pacman.y = groundY;
+                pacman.velocityY = 0;
+                pacman.jumping = false;
+                pacman.onGround = true;
+            } else {
+                pacman.onGround = false;
+            }
+            
+            updatePacmanScale();
+        }
+
+        function checkCollisions() {
+            for (let i = 0; i < holes.length; i++) {
+                const hole = holes[i];
+                
+                const hitboxShrink = 8;
+                const pacmanHitLeft = pacman.x + hitboxShrink;
+                const pacmanHitRight = pacman.x + pacman.width - hitboxShrink;
+                const pacmanHitBottom = pacman.y + pacman.height;
+                
+                const holeLeft = hole.x;
+                const holeRight = hole.x + hole.width;
+                const holeTop = groundY + pacman.height;
+                
+                const pacmanInHoleX = pacmanHitRight > holeLeft && pacmanHitLeft < holeRight;
+                const pacmanAtGround = pacmanHitBottom >= holeTop;
+                
+                if (pacmanInHoleX && pacmanAtGround) {
+                    gameRunning = false;
+                    return;
+                }
+            }
+
+            for (let i = coins.length - 1; i >= 0; i--) {
+                const coin = coins[i];
+                const pacmanCenterX = pacman.x + pacman.width/2;
+                const pacmanCenterY = pacman.y + pacman.height/2;
+                const coinCenterX = coin.x + coin.size/2;
+                const coinCenterY = coin.y + coin.size/2;
+                
+                const distance = Math.sqrt(
+                    Math.pow(pacmanCenterX - coinCenterX, 2) + 
+                    Math.pow(pacmanCenterY - coinCenterY, 2)
+                );
+                
+                if (distance < (pacman.width/2 + coin.size/2) * 0.8) {
+                    createCoinFragments(coin);
+                    coins.splice(i, 1);
+                    score += 50;
+                    pacman.scaleX = 1.2;
+                    pacman.scaleY = 1.2;
+                }
+            }
+        }
+
+        function jump() {
+            if (pacman.onGround || (pacman.y >= groundY - 5 && pacman.velocityY >= 0)) {
+                pacman.velocityY = jumpPower;
+                pacman.jumping = true;
+                pacman.onGround = false;
+                pacman.scaleX = 1.1;
+                pacman.scaleY = 0.8;
+                pacman.y = Math.min(pacman.y, groundY);
+            }
+        }
+
+        function gameLoop() {
+            if (!gameRunning) {
+                gameOverElement.style.display = 'block';
+                return;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            backgroundX -= gameSpeed;
+
+            drawBackground();
+            drawHoles();
+            drawCoins();
+            drawPacman();
+
+            updatePacman();
+            updateHoles();
+            updateCoins();
+            checkCollisions();
+
+            score++;
+            scoreElement.textContent = Math.floor(score / 10);
+
+            if (score % 500 === 0) {
+                gameSpeed += 0.2;
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function resetGame() {
+            gameRunning = true;
+            score = 0;
+            gameSpeed = 3;
+            pacman.y = groundY;
+            pacman.velocityY = 0;
+            pacman.jumping = false;
+            pacman.onGround = true;
+            pacman.scaleX = 1;
+            pacman.scaleY = 1;
+            pacman.rotation = 0;
+            holes = [];
+            coins = [];
+            coinFragments = [];
+            holeSpawnTimer = 0;
+            coinSpawnTimer = 0;
+            backgroundX = 0;
+            gameOverElement.style.display = 'none';
+            gameLoop();
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (gameRunning) {
+                    jump();
+                }
+            }
+            if (e.code === 'KeyR' && !gameRunning) {
+                resetGame();
+            }
+        });
+
+        restartBtn.addEventListener('click', function() {
+            resetGame();
+        });
+
+        canvas.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            if (gameRunning) {
+                jump();
+            }
+        });
+
+        canvas.addEventListener('click', function(e) {
+            if (gameRunning) {
+                jump();
+            }
+        });
+
+        gameLoop();
+    </script>
+</body>
+</html>
