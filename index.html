@@ -1236,13 +1236,34 @@ function createSpeedPowerup() {
             lastTouchEnd = now;
         }, false);
 
-        // Добавьте в конец скрипта:
+// Добавьте в конец скрипта:
 if ('ontouchstart' in window) {
-    // Для мобильных устройств
+    // Для мобильных устройств используем touchstart
     document.querySelectorAll('.arrow-btn').forEach(button => {
         button.addEventListener('touchstart', function(e) {
             e.preventDefault(); // Предотвращает дублирование click
             const newDirection = this.getAttribute('data-direction');
+            
+            // Добавляем визуализацию нажатия
+            this.classList.add('pressed');
+            setTimeout(() => {
+                this.classList.remove('pressed');
+            }, 100); // Короткая анимация для мобилок
+            
+            startMoving(newDirection);
+        });
+    });
+} else {
+    // Для десктопа оставляем обычные обработчики click
+    document.querySelectorAll('.arrow-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const newDirection = this.getAttribute('data-direction');
+            
+            this.classList.add('pressed');
+            setTimeout(() => {
+                this.classList.remove('pressed');
+            }, 150);
+            
             startMoving(newDirection);
         });
     });
