@@ -2,10 +2,29 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pac-Man Game</title>
     <style>
+
+        html {
+    touch-action: manipulation; /* Отключает double-tap zoom */
+    -webkit-text-size-adjust: 100%; /* Для Safari */
+}
+
+body {
+    touch-action: manipulation;
+    -webkit-touch-callout: none; /* Отключает контекстное меню */
+    -webkit-user-select: none; /* Отключает выделение текста */
+    user-select: none;
+}
+
+/* Специально для кнопок управления */
+.arrow-btn {
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent; /* Убирает подсветку при тапе */
+}
+
         body {
             margin: 0;
             padding: 20px;
