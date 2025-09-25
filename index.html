@@ -1157,11 +1157,16 @@ function createSpeedPowerup() {
     button.addEventListener('click', function() {
         const newDirection = this.getAttribute('data-direction');
         
+        // Добавить вибрацию
+        if ('vibrate' in navigator) {
+            navigator.vibrate(50); // 50ms вибрации
+        }
+
         // Добавить визуальную подсветку при клике мышью
         this.classList.add('pressed');
         setTimeout(() => {
             this.classList.remove('pressed');
-        }, 150);
+        }, 100);
         
         startMoving(newDirection);
     });
