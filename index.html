@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pac-Man Game</title>
     <style>
         body {
@@ -21,15 +22,15 @@
         .game-container {
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            max-width: 600px;
+            gap: 15px;
+            max-width: 360px;
             width: 100%;
             border-radius: 16px;
         }
 
         .game-field {
-            width: 100%;
-            height: 600px;
+            width: 360px;
+            height: 400px;
             background: #092B1A;
             border: 3px solid #0B4F2D;
             position: relative;
@@ -68,25 +69,22 @@
         .outer-wall-right { top: 20px; right: 20px; bottom: 20px; }
 
         /* Внутренние стены - создаем лабиринт */
-        .inner-wall-1 { top: 60px; left: 60px; width: 200px; }
-        .inner-wall-2 { top: 60px; right: 60px; width: 200px; }
+        .inner-wall-1 { top: 60px; left: 60px; width: 80px; }
+        .inner-wall-2 { top: 60px; right: 60px; width: 80px; }
         .inner-wall-3 { top: 60px; left: 60px; height: 80px; }
         .inner-wall-4 { top: 60px; right: 60px; height: 80px; }
         
-        .inner-wall-5 { top: 120px; left: 200px; width: 200px; }
-        .inner-wall-6 { top: 180px; left: 200px; height: 60px; }
-        .inner-wall-7 { top: 180px; right: 200px; height: 60px; }
+        .inner-wall-5 { top: 120px; left: 140px; width: 80px; }
+        .inner-wall-6 { top: 180px; left: 140px; height: 40px; }
+        .inner-wall-7 { top: 180px; right: 140px; height: 40px; }
         
-        .inner-wall-8 { top: 280px; left: 60px; width: 120px; }
-        .inner-wall-9 { top: 280px; right: 60px; width: 120px; }
+        .inner-wall-8 { top: 260px; left: 60px; height: 80px; }
+        .inner-wall-9 { top: 260px; right: 60px; height: 80px; }
         
-        .inner-wall-10 { top: 340px; left: 240px; width: 100px; }
-        .inner-wall-11 { top: 340px; left: 240px; height: 100px; }
+        .inner-wall-10 { top: 340px; left: 60px; width: 80px; }
+        .inner-wall-11 { top: 340px; right: 60px; width: 80px; }
         
-        .inner-wall-12 { top: 420px; left: 100px; width: 80px; }
-        .inner-wall-13 { top: 420px; right: 100px; width: 80px; }
-        
-        .inner-wall-14 { top: 480px; left: 200px; width: 200px; }
+        .inner-wall-12 { top: 280px; left: 140px; width: 80px; }
 
         .pacman {
             position: absolute;
@@ -303,14 +301,20 @@
         }
 
         .game-over h2 {
-            font-size: 48px;
-            margin-bottom: 20px;
+            font-size: 32px;
+            margin-bottom: 15px;
             color: #FF0000;
         }
 
+        .game-over p {
+            font-size: 18px; /* добавить если нет */
+            margin-bottom: 15px;
+            padding: 0 10px;
+        }
+
         .restart-btn {
-            padding: 15px 30px;
-            font-size: 20px;
+            padding: 12px 24px;
+            font-size: 18px;
             background: linear-gradient(145deg, #333, #222);
             border: 2px solid #FFD700;
             color: #FFD700;
@@ -341,21 +345,22 @@
         }
 
         .start-screen h1 {
-            font-size: 64px;
-            margin-bottom: 20px;
+            font-size: 36px;
+            margin-bottom: 15px;
             color: #FFD700;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
         }
 
         .start-screen p {
-            font-size: 24px;
-            margin-bottom: 30px;
+            font-size: 16px;
+            margin-bottom: 20px;
             text-align: center;
+            padding: 0 10px; 
         }
 
         .start-btn {
-            padding: 15px 30px;
-            font-size: 24px;
+            padding: 12px 24px; /* было 15px 30px */
+            font-size: 18px; /* было 24px */
             background: linear-gradient(145deg, #333, #222);
             border: 2px solid #FFD700;
             color: #FFD700;
@@ -409,11 +414,11 @@
                 <div class="wall-v inner-wall-6"></div>
                 <div class="wall-v inner-wall-7"></div>
                 
-                <div class="wall-h inner-wall-8"></div>
-                <div class="wall-h inner-wall-9"></div>
+                <div class="wall-v inner-wall-8"></div>
+                <div class="wall-v inner-wall-9"></div>
                 
                 <div class="wall-h inner-wall-10"></div>
-                <div class="wall-v inner-wall-11"></div>
+                <div class="wall-h inner-wall-11"></div>
                 
                 <div class="wall-h inner-wall-12"></div>
                 <div class="wall-h inner-wall-13"></div>
@@ -461,8 +466,8 @@
         // Игровые переменные
         const pacman = document.getElementById('pacman');
         const gameField = document.querySelector('.game-field');
-        let pacmanX = 300;
-        let pacmanY = 300;
+        let pacmanX = 170;
+        let pacmanY = 185;
         let direction = null;
         let isMoving = false;
         let gameLoop;
@@ -470,7 +475,8 @@
         const PACMAN_SIZE = 32;
         let MOVE_SPEED = 2; // Эта переменная должна быть объявлена ДО originalSpeed
         const FIELD_PADDING = 20;
-        const FIELD_SIZE = 600;
+        const FIELD_SIZE = 360;
+        const FIELD_HEIGHT = 400;
 
         // Power-up переменные - ПОСЛЕ объявления MOVE_SPEED
         let speedPowerupUsed = false;
@@ -555,7 +561,7 @@ function preloadImages() {
             gameField.appendChild(dotsContainer);
             
             for (let x = FIELD_PADDING + DOT_SPACING; x < FIELD_SIZE - FIELD_PADDING; x += DOT_SPACING) {
-                for (let y = FIELD_PADDING + DOT_SPACING; y < FIELD_SIZE - FIELD_PADDING; y += DOT_SPACING) {
+                 for (let y = FIELD_PADDING + DOT_SPACING; y < FIELD_HEIGHT - FIELD_PADDING; y += DOT_SPACING) { // используем FIELD_HEIGHT
                     // Проверяем, не пересекается ли точка со стеной
                     if (!checkDotWallCollision(x, y)) {
                         const dot = document.createElement('div');
@@ -572,9 +578,9 @@ function preloadImages() {
         // Создание врагов
         function createEnemies() {
             const enemyPositions = [
-                {x: 500, y: 500},
-                {x: 100, y: 500},
-                {x: 500, y: 100},
+                {x: 305, y: 340},
+                {x: 30, y: 340},
+                {x: 300, y: 30},
                 {x: 30, y: 30}
             ];
             
@@ -618,7 +624,7 @@ function createSpeedPowerup() {
         let attempts = 0;
         do {
             x = Math.random() * (FIELD_SIZE - 100) + 50;
-            y = Math.random() * (FIELD_SIZE - 100) + 50;
+            y = Math.random() * (FIELD_HEIGHT - 100) + 50; // используем FIELD_HEIGHT
             attempts++;
         } while (checkDotWallCollision(x, y) && attempts < 50);
         
@@ -853,8 +859,8 @@ function createSpeedPowerup() {
             // Сброс переменных
             gameActive = true;
             score = 0;
-            pacmanX = 300;
-            pacmanY = 300;
+            pacmanX = 170;
+            pacmanY = 185;
             direction = null;
             isMoving = false;
             gameStarted = true;
@@ -880,9 +886,9 @@ function createSpeedPowerup() {
             
             // Сброс врагов на изначальные позиции
             const enemyPositions = [
-                {x: 500, y: 500},
-                {x: 100, y: 500},
-                {x: 500, y: 100},
+                {x: 305, y: 340},
+                {x: 30, y: 340},
+                {x: 300, y: 30},
                 {x: 30, y: 30}
             ];
 
@@ -931,7 +937,7 @@ function createSpeedPowerup() {
             if (newX < FIELD_PADDING || 
                 newY < FIELD_PADDING || 
                 newX + ENEMY_SIZE > FIELD_SIZE - FIELD_PADDING || 
-                newY + ENEMY_SIZE > FIELD_SIZE - FIELD_PADDING) {
+                newY + ENEMY_SIZE > FIELD_HEIGHT - FIELD_PADDING) { // используем FIELD_HEIGHT
                 return true;
             }
             
@@ -1006,7 +1012,7 @@ function createSpeedPowerup() {
             if (newX < FIELD_PADDING || 
                 newY < FIELD_PADDING || 
                 newX + PACMAN_SIZE > FIELD_SIZE - FIELD_PADDING || 
-                newY + PACMAN_SIZE > FIELD_SIZE - FIELD_PADDING) {
+                newY + PACMAN_SIZE > FIELD_HEIGHT - FIELD_PADDING) { // используем FIELD_HEIGHT
                 return true;
             }
             
