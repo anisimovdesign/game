@@ -1235,6 +1235,18 @@ function createSpeedPowerup() {
             }
             lastTouchEnd = now;
         }, false);
+
+        // Добавьте в конец скрипта:
+if ('ontouchstart' in window) {
+    // Для мобильных устройств
+    document.querySelectorAll('.arrow-btn').forEach(button => {
+        button.addEventListener('touchstart', function(e) {
+            e.preventDefault(); // Предотвращает дублирование click
+            const newDirection = this.getAttribute('data-direction');
+            startMoving(newDirection);
+        });
+    });
+}
     </script>
 </body>
 </html>
