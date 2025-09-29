@@ -124,55 +124,84 @@ body {
         .pacman.up { transform: rotate(-90deg); }
         .pacman.down { transform: rotate(90deg); }
 
-        /* Анимация "дыхания" для Pac-Man */
-        @keyframes pacman-breathing {
-            0% { transform: scale(1); }
-            50% { transform: scale(0.9); }
-            100% { transform: scale(1); }
-        }
+/* Анимация "дыхания" для Pac-Man */
+@keyframes pacman-breathing {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.9); }
+    100% { transform: scale(1); }
+}
+@keyframes pacman-breathing-right {
+    0% { transform: scaleX(1) scale(1); }
+    50% { transform: scaleX(1) scale(0.9); }
+    100% { transform: scaleX(1) scale(1); }
+}
+@keyframes pacman-breathing-left {
+    0% { transform: scaleX(-1) scale(1); }
+    50% { transform: scaleX(-1) scale(0.9); }
+    100% { transform: scaleX(-1) scale(1); }
+}
+@keyframes pacman-breathing-up {
+    0% { transform: rotate(-90deg) scale(1); }
+    50% { transform: rotate(-90deg) scale(0.9); }
+    100% { transform: rotate(-90deg) scale(1); }
+}
+@keyframes pacman-breathing-down {
+    0% { transform: rotate(90deg) scale(1); }
+    50% { transform: rotate(90deg) scale(0.9); }
+    100% { transform: rotate(90deg) scale(1); }
+}
 
-        @keyframes pacman-breathing-right {
-            0% { transform: scaleX(1) scale(1); }
-            50% { transform: scaleX(1) scale(0.9); }
-            100% { transform: scaleX(1) scale(1); }
-        }
+/* Дыхание работает только БЕЗ неуязвимости */
+.pacman.right.moving:not(.invincible) { 
+    animation: pacman-breathing-right 0.3s ease-in-out infinite;
+}
+.pacman.left.moving:not(.invincible) { 
+    animation: pacman-breathing-left 0.3s ease-in-out infinite;
+}
+.pacman.up.moving:not(.invincible) { 
+    animation: pacman-breathing-up 0.3s ease-in-out infinite;
+}
+.pacman.down.moving:not(.invincible) { 
+    animation: pacman-breathing-down 0.3s ease-in-out infinite;
+}
 
-        @keyframes pacman-breathing-left {
-            0% { transform: scaleX(-1) scale(1); }
-            50% { transform: scaleX(-1) scale(0.9); }
-            100% { transform: scaleX(-1) scale(1); }
-        }
+/* Обычные повороты без анимации */
+.pacman.right { transform: scaleX(1); }
+.pacman.left { transform: scaleX(-1); }
+.pacman.up { transform: rotate(-90deg); }
+.pacman.down { transform: rotate(90deg); }
 
-        @keyframes pacman-breathing-up {
-            0% { transform: rotate(-90deg) scale(1); }
-            50% { transform: rotate(-90deg) scale(0.9); }
-            100% { transform: rotate(-90deg) scale(1); }
-        }
+/* Мигание с сохранением поворота - объединяем opacity и transform */
+@keyframes blink-right {
+    0%, 49% { opacity: 1; transform: scaleX(1); }
+    50%, 100% { opacity: 0.3; transform: scaleX(1); }
+}
+@keyframes blink-left {
+    0%, 49% { opacity: 1; transform: scaleX(-1); }
+    50%, 100% { opacity: 0.3; transform: scaleX(-1); }
+}
+@keyframes blink-up {
+    0%, 49% { opacity: 1; transform: rotate(-90deg); }
+    50%, 100% { opacity: 0.3; transform: rotate(-90deg); }
+}
+@keyframes blink-down {
+    0%, 49% { opacity: 1; transform: rotate(90deg); }
+    50%, 100% { opacity: 0.3; transform: rotate(90deg); }
+}
 
-        @keyframes pacman-breathing-down {
-            0% { transform: rotate(90deg) scale(1); }
-            50% { transform: rotate(90deg) scale(0.9); }
-            100% { transform: rotate(90deg) scale(1); }
-        }
-
-        .pacman.right.moving { 
-            animation: pacman-breathing-right 0.3s ease-in-out infinite;
-        }
-        .pacman.left.moving { 
-            animation: pacman-breathing-left 0.3s ease-in-out infinite;
-        }
-        .pacman.up.moving { 
-            animation: pacman-breathing-up 0.3s ease-in-out infinite;
-        }
-        .pacman.down.moving { 
-            animation: pacman-breathing-down 0.3s ease-in-out infinite;
-        }
-
-        /* Обычные повороты без анимации */
-        .pacman.right { transform: scaleX(1); }
-        .pacman.left { transform: scaleX(-1); }
-        .pacman.up { transform: rotate(-90deg); }
-        .pacman.down { transform: rotate(90deg); }
+/* Мигание ВО ВРЕМЯ неуязвимости - перекрывает всё остальное */
+.pacman.invincible.right {
+    animation: blink-right 0.3s infinite !important;
+}
+.pacman.invincible.left {
+    animation: blink-left 0.3s infinite !important;
+}
+.pacman.invincible.up {
+    animation: blink-up 0.3s infinite !important;
+}
+.pacman.invincible.down {
+    animation: blink-down 0.3s infinite !important;
+}
 
         /* Враги с разными скинами */
         .enemy {
@@ -410,6 +439,80 @@ body {
             100% { opacity: 1; transform: scale(1.2); }
         }
 
+        /* Жизни */
+        .lives-container {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        /* Жизни */
+        .heart {
+            width: 28px;
+            height: 24px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            display: inline-block;
+        }
+
+        .heart.active {
+            background-image: url('./images/heart_on.svg');
+        }
+
+        .heart.inactive {
+            background-image: url('./images/heart_off.svg');
+        }
+
+        .pink-dot {
+            position: absolute;
+            width: 28px;
+            height: 22px;
+            background-image: url('./images/006.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 9;
+            filter: drop-shadow(0 0 15px #FF69B4) drop-shadow(0 0 25px #FF1493);
+            animation: pulse-simple 1s ease-in-out infinite alternate;
+            will-change: transform;
+            transform: translateZ(0);
+        }
+
+        @keyframes pulse-simple {
+            0% { transform: scale(1) translateZ(0); }
+            100% { transform: scale(1.2) translateZ(0); }
+        }
+
+        /* Экран победы */
+        .win-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 100, 0, 0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            color: #FFD700;
+        }
+
+        .win-screen h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: #FFD700;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .win-screen p {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
     </style>
 </head>
 <body>
@@ -458,7 +561,15 @@ body {
                     <p>Ваш счёт: <span id="final-score">0</span></p>
                     <button class="restart-btn" onclick="restartGame()">НАЧАТЬ ЗАНОВО</button>
                 </div>
-                
+
+                <!-- Экран победы -->
+                <div class="win-screen" id="win-screen">
+                    <h2>ВЫ ВЫИГРАЛИ СУПЕР ОФФЕР!</h2>
+                    <p>Сплитуйте покупки на 6 месяцев без переплат</p>
+                    <p>Ваш счёт: <span id="win-score">0</span></p>
+                    <button class="restart-btn" onclick="restartGame()">НАЧАТЬ ЗАНОВО</button>
+                </div>
+                                
                 <!-- Pac-Man -->
                 <div class="pacman right" id="pacman"></div>
             </div>
@@ -468,7 +579,9 @@ body {
         <div class="controls">
             <div class="score-info">
                 <span>СЧЁТ: 0</span>
-                <span>УРОВЕНЬ: 1</span>
+                    <div class="lives-container" id="lives-container">
+                        <!-- Сердечки добавляются через JavaScript -->
+                    </div>
             </div>
             
             
@@ -490,6 +603,10 @@ body {
         let direction = null;
         let isMoving = false;
         let gameLoop;
+        let lives = 3;
+        let isInvincible = false;
+        let pinkDot = null;
+        let allDotsCollected = false;
 
         const PACMAN_SIZE = 32;
         let MOVE_SPEED = 2; // Эта переменная должна быть объявлена ДО originalSpeed
@@ -512,7 +629,7 @@ body {
         const dots = [];
         const enemies = [];
         const ENEMY_SIZE = 32;
-        const ENEMY_SPEED = 1.5;
+        const ENEMY_SPEED = 1.2;
         const ENEMY_COUNT = 4;
 
 
@@ -521,6 +638,8 @@ body {
         function startGame() {
             gameStarted = true;
             gameActive = true;
+            lives = 3; 
+            updateLives(); 
             document.getElementById('start-screen').style.display = 'none';
             
             // Инициализация игры
@@ -736,7 +855,7 @@ function createSpeedPowerup() {
                 );
                 
                 // Определяем режим поведения
-                if (distanceToPacman <= 80) {
+                if (distanceToPacman <= 80 && !isInvincible) {
                     // Режим преследования - двигаемся к Pac-Man'у
                     enemy.chasing = true;
                     enemy.direction = getDirectionToPacman(enemy.x, enemy.y, pacmanX, pacmanY);
@@ -819,35 +938,83 @@ function createSpeedPowerup() {
         }
 
         // Проверка столкновения с врагами
-        // Проверка столкновения с врагами
-        function checkEnemyCollision() {
-            if (!gameActive) return;
-            
-            const pacmanCenterX = pacmanX + PACMAN_SIZE/2;
-            const pacmanCenterY = pacmanY + PACMAN_SIZE/2;
-            
-            enemies.forEach((enemy, index) => {
-                if (enemy.destroyed) return; // Пропускаем уничтоженных врагов
+            function checkEnemyCollision() {
+                if (!gameActive || isInvincible) return; // Не проверяем если неуязвимы
                 
-                const enemyCenterX = enemy.x + ENEMY_SIZE/2;
-                const enemyCenterY = enemy.y + ENEMY_SIZE/2;
+                const pacmanCenterX = pacmanX + PACMAN_SIZE/2;
+                const pacmanCenterY = pacmanY + PACMAN_SIZE/2;
                 
-                const distance = Math.sqrt(
-                    Math.pow(pacmanCenterX - enemyCenterX, 2) + 
-                    Math.pow(pacmanCenterY - enemyCenterY, 2)
-                );
-                
-                if (distance < 20) { // Радиус столкновения
-                    if (speedPowerupActive) {
-                        // Во время ускорения - уничтожаем врага
-                        destroyEnemy(enemy, index);
-                    } else {
-                        // Обычное столкновение - игра заканчивается
-                        gameOver();
+                enemies.forEach((enemy, index) => {
+                    if (enemy.destroyed) return;
+                    
+                    const enemyCenterX = enemy.x + ENEMY_SIZE/2;
+                    const enemyCenterY = enemy.y + ENEMY_SIZE/2;
+                    
+                    const distance = Math.sqrt(
+                        Math.pow(pacmanCenterX - enemyCenterX, 2) + 
+                        Math.pow(pacmanCenterY - enemyCenterY, 2)
+                    );
+                    
+                    if (distance < 20) {
+                        if (speedPowerupActive) {
+                            // Во время ускорения - уничтожаем врага
+                            destroyEnemy(enemy, index);
+                        } else {
+                            // Обычное столкновение - теряем жизнь
+                            loseLife();
+                        }
                     }
+                });
+            }
+
+            // Потеря жизни
+            function loseLife() {
+                lives--;
+                updateLives();
+                
+                if (lives <= 0) {
+                    // Все жизни потеряны - конец игры
+                    gameOver();
+                } else {
+                    // Активируем неуязвимость на 3 секунды
+                    activateInvincibility();
                 }
-            });
-        }
+            }
+
+            // Обновление отображения жизней
+            function updateLives() {
+                const livesContainer = document.getElementById('lives-container');
+                livesContainer.innerHTML = '';
+                
+                // Показываем 3 сердечка всегда
+                for (let i = 0; i < 3; i++) {
+                    const heart = document.createElement('span');
+                    heart.className = 'heart';
+                    
+                    if (i < lives) {
+                        heart.classList.add('active'); // Живое сердечко
+                    } else {
+                        heart.classList.add('inactive'); // Потерянное сердечко
+                    }
+                    
+                    livesContainer.appendChild(heart);
+                }
+            }
+
+            // Активация неуязвимости
+            function activateInvincibility() {
+                isInvincible = true;
+                pacman.classList.add('invincible');
+                
+                console.log('Неуязвимость активирована на 3 секунды');
+                
+                // Через 3 секунды убираем неуязвимость
+                setTimeout(() => {
+                    isInvincible = false;
+                    pacman.classList.remove('invincible');
+                    console.log('Неуязвимость закончилась');
+                }, 3000);
+            }
 
         // Уничтожение врага
         function destroyEnemy(enemy, index) {
@@ -874,6 +1041,17 @@ function createSpeedPowerup() {
 
         // Перезапуск игры
         function restartGame() {
+
+            allDotsCollected = false;
+                if (pinkDot && pinkDot.element) {
+                    pinkDot.element.remove();
+                }
+                pinkDot = null;
+
+            lives = 3;
+            isInvincible = false;
+            pacman.classList.remove('invincible');
+            updateLives();
 
             // Сброс переменных
             gameActive = true;
@@ -938,6 +1116,8 @@ function createSpeedPowerup() {
             
             // Скрыть экран окончания игры
             document.getElementById('game-over').style.display = 'none';
+            // Скрыть экран победы
+            document.getElementById('win-screen').style.display = 'none';
 
             gameStarted = true;
             createSpeedPowerup();
@@ -1093,6 +1273,8 @@ function createSpeedPowerup() {
                 checkDotCollection();
                 checkPowerupCollection();
                 checkEnemyCollision();
+                checkAllDotsCollected();
+                checkPinkDotCollection();
             } else {
                 // Останавливаемся при столкновении со стеной
                 stopPacman();
@@ -1121,25 +1303,113 @@ function createSpeedPowerup() {
                 });
             }
 
+            // Проверка сбора всех точек
+            function checkAllDotsCollected() {
+                const remainingDots = dots.filter(dot => !dot.collected).length;
+                
+                if (remainingDots === 0 && !allDotsCollected) {
+                    allDotsCollected = true;
+                    createPinkDot();
+                }
+            }
+
+            // Создание розового кружка
+            function createPinkDot() {
+                if (pinkDot) return;
+                
+                // Находим случайную свободную позицию
+                let x, y;
+                let attempts = 0;
+                do {
+                    x = Math.random() * (FIELD_SIZE - 100) + 50;
+                    y = Math.random() * (FIELD_HEIGHT - 100) + 50;
+                    attempts++;
+                } while (checkDotWallCollision(x, y) && attempts < 50);
+                
+                // Создаем элемент
+                const pinkElement = document.createElement('div');
+                pinkElement.className = 'pink-dot';
+                pinkElement.style.left = (x - 14) + 'px'; // 28/2 = 14
+                pinkElement.style.top = (y - 11) + 'px';  // 22/2 = 11
+                gameField.appendChild(pinkElement);
+                
+                pinkDot = {
+                    element: pinkElement,
+                    x: x,
+                    y: y,
+                    collected: false
+                };
+                
+                console.log('Розовый кружок появился!');
+            }
+
+            // Проверка сбора розового кружка
+            function checkPinkDotCollection() {
+                if (!pinkDot || pinkDot.collected) return;
+                
+                const pacmanCenterX = pacmanX + PACMAN_SIZE/2;
+                const pacmanCenterY = pacmanY + PACMAN_SIZE/2;
+                
+                const distance = Math.sqrt(
+                    Math.pow(pacmanCenterX - pinkDot.x, 2) + 
+                    Math.pow(pacmanCenterY - pinkDot.y, 2)
+                );
+                
+                if (distance < 18) {
+                    // Собираем розовый кружок
+                    pinkDot.collected = true;
+                    pinkDot.element.remove();
+                    console.log('Розовый кружок собран!');
+                    
+                    // TODO: Здесь будет действие после сбора
+                    onPinkDotCollected();
+                }
+            }
+
+            // Действие после сбора розового кружка
+            function onPinkDotCollected() {
+                console.log('Победа!');
+                winGame();
+            }
+
+            // Победа в игре
+            function winGame() {
+                gameActive = false;
+                stopPacman();
+                
+                // Остановка всех врагов
+                enemies.forEach(enemy => {
+                    enemy.direction = null;
+                });
+                
+                // Показать экран победы
+                document.getElementById('win-score').textContent = score;
+                document.getElementById('win-screen').style.display = 'flex';
+            }
+
             // Обновление счета
             function updateScore() {
                 const scoreElement = document.querySelector('.score-info span');
                 scoreElement.textContent = `СЧЁТ: ${score}`;
             }
         
-        // Запуск движения
-        function startMoving(newDirection) {
-                if (!gameActive || !gameStarted) return;
-            direction = newDirection;
-            isMoving = true;
-            
-            // Обновляем внешний вид Pac-Man'а
-            pacman.className = 'pacman ' + direction + ' moving';
-            
-            // Останавливаем предыдущий цикл и запускаем новый
-            if (gameLoop) clearInterval(gameLoop);
-            gameLoop = setInterval(movePacman, 16); // ~60 FPS
-        }
+// Запуск движения
+function startMoving(newDirection) {
+    if (!gameActive || !gameStarted) return;
+    direction = newDirection;
+    isMoving = true;
+    
+    // Обновляем внешний вид Pac-Man'а с сохранением invincible
+    if (isInvincible) {
+        pacman.className = 'pacman ' + direction + ' moving invincible';
+    } else {
+        pacman.className = 'pacman ' + direction + ' moving';
+    }
+    
+    // Останавливаем предыдущий цикл и запускаем новый
+    if (gameLoop) clearInterval(gameLoop);
+    gameLoop = setInterval(movePacman, 16); // ~60 FPS
+}
         
         // Остановка движения
         function stopPacman() {
@@ -1214,9 +1484,11 @@ function createSpeedPowerup() {
         // Инициализация игры
         preloadImages().then(() => {
             console.log('Все изображения загружены!');
+            updateLives();
             // НЕ запускаем игру автоматически - только показываем стартовый экран
         }).catch(error => {
             console.error('Ошибка загрузки изображений:', error);
+            updateLives();
             // Тоже НЕ запускаем игру автоматически
         });
 
