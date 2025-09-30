@@ -1540,6 +1540,59 @@ if ('ontouchstart' in window) {
         });
     });
 }
+
+// Управление свайпами для мобильных устройств
+let touchStartX = 0;
+let touchStartY = 0;
+let touchEndX = 0;
+let touchEndY = 0;
+
+const minSwipeDistance = 30; // Минимальная дистанция свайпа в пикселях
+
+// Обработчик начала касания
+document.addEventListener('touchstart', function(event) {
+    touchStartX = event.changedTouches[0].screenX;
+    touchStartY = event.changedTouches[0].screenY;
+}, false);
+
+// Обработчик конца касания
+document.addEventListener('touchend', function(event) {
+    touchEndX = event.changedTouches[0].screenX;
+    touchEndY = event.changedTouches[0].screenY;
+    handleSwipe();
+}, false);
+
+// Определение направления свайпа
+function handleSwipe() {
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+    
+    // Проверяем минимальную дистанцию свайпа
+    if (Math.abs(deltaX) < minSwipeDistance && Math.abs(deltaY) < minSwipeDistance) {
+        return; // Слишком короткий свайп, игнорируем
+    }
+    
+    // Определяем направление по наибольшему смещению
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        // Горизонтальный свайп
+        if (deltaX > 0) {
+            startMoving('right');
+            console.log('Свайп вправо');
+        } else {
+            startMoving('left');
+            console.log('Свайп влево');
+        }
+    } else {
+        // Вертикальный свайп
+        if (deltaY > 0) {
+            startMoving('down');
+            console.log('Свайп вниз');
+        } else {
+            startMoving('up');
+            console.log('Свайп вверх');
+        }
+    }
+}
     </script>
 </body>
 </html>
