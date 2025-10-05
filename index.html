@@ -238,6 +238,23 @@
             background-image: url('./images/frog_4.png');
         }
 
+        /* Враги становятся прозрачными во время power-up */
+        .enemy.scared {
+            opacity: 0.5;
+            transition: opacity 0.3s;
+        }
+
+        /* Мигание врагов перед окончанием power-up */
+        @keyframes enemy-warning {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        .enemy.scared.warning {
+            animation: enemy-warning 0.3s infinite;
+        }
+
         .score-panel {
             background: #1a1a1a;
             border: 3px solid #363636;
@@ -939,13 +956,34 @@ function createSpeedPowerup() {
             speedPowerupActive = true;
             MOVE_SPEED = originalSpeed * 2; // Удваиваем скорость
             
-            console.log('Ускорение активировано!');
+
+                // Делаем врагов прозрачными
+            enemies.forEach(enemy => {
+                if (!enemy.destroyed) {
+                    enemy.element.classList.add('scared');
+                }
+            });
+
+                // За 2 секунды до конца - начинаем мигать
+            setTimeout(() => {
+                enemies.forEach(enemy => {
+                    if (!enemy.destroyed) {
+                        enemy.element.classList.add('warning');
+                    }
+                });
+                console.log('Предупреждение - скоро конец ускорения!');
+            }, 3000);
             
-            // Возвращаем обычную скорость через 10 секунд
+            // Возвращаем обычную скорость через 5 секунд
             setTimeout(() => {
                 MOVE_SPEED = originalSpeed;
                 speedPowerupActive = false;
-                console.log('Ускорение закончилось');
+
+            // Возвращаем врагам нормальный вид
+                enemies.forEach(enemy => {
+                    enemy.element.classList.remove('scared');
+                    enemy.element.classList.remove('warning');
+                });
             }, 5000);
         }
 
