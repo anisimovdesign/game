@@ -31,7 +31,7 @@
 
         body {
             margin: 0;
-            padding: 0;
+            padding: 12px;
             background: #000;
             font-family: 'JetBrains Mono', monospace;
             display: flex;
@@ -40,6 +40,15 @@
             min-height: 100vh;
             overflow: hidden; 
             box-sizing: border-box; 
+        }
+
+        /* Обертка для кнопки и контейнера */
+        .game-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            max-width: 360px;
+            width: 100%;
         }
 
         /* Кнопка закрытия */
@@ -51,21 +60,17 @@
             border-radius: 50%;
             color: #000;
             cursor: pointer;
-            font-size: 20px;
-            font-weight: bold;
+            font-size: 18px;
+            font-weight: normal;
+            line-height: 1;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.2s;
             font-family: Arial, sans-serif;
             box-sizing: border-box;
-            align-self: flex-end;
-            margin-right: 0;
-        }
-
-        .close-button:hover {
-            background: #e0e0e0;
-            transform: scale(1.1);
+            margin-bottom: 12px;
+            padding: 0;
         }
 
         .close-button:active {
@@ -114,12 +119,10 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
-            max-width: 360px;
             width: 100%;
             max-height: 620px;
             border-radius: 16px;
             position: relative;
-            margin-top: 20px;
         }
 
 
@@ -345,7 +348,7 @@
             padding: 20px;
             display: flex;
             flex-direction: column; 
-            gap: 46px; 
+            gap: 26px; 
             color: #ffffff;
             font-size: 16px;
             width: 100%;
@@ -686,10 +689,11 @@
     </style>
 </head>
 <body>
-    <!-- Кнопка закрытия -->
-    <button class="close-button" onclick="closeGame()">✕</button>
-    
-    <div class="game-container">
+    <div class="game-wrapper">
+        <!-- Кнопка закрытия -->
+        <button class="close-button" onclick="closeGame()">✕</button>
+        
+        <div class="game-container">
                         <!-- Экран инструкций -->
                 <div class="instructions-screen" id="instructions-screen">
                     <div class="instructions-container">
@@ -807,6 +811,7 @@
             <button onclick="restartGame()">🔄 Рестарт</button>
             <button onclick="loseLife()">💔 -1 жизнь</button>
         </div> -->
+        </div>
     </div>
 
     <script>
