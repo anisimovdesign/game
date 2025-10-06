@@ -102,6 +102,20 @@
             border-radius: 24px;
         }
 
+        .game-field::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('./images/noise.png');
+            background-repeat: repeat;
+            opacity: 1;
+            pointer-events: none;
+            z-index: 0;
+        }
+
         .maze {
             position: absolute;
             top: 0;
@@ -847,17 +861,17 @@ function preloadImages() {
         'https://i.ibb.co/NgrN2fhM/Property-1-right-on.png'
     ];
     
-    const promises = imageUrls.map(url => {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.onload = () => resolve(img);
-            img.onerror = () => reject(new Error(`Не удалось загрузить: ${url}`));
-            img.src = url;
+        const promises = imageUrls.map(url => {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = () => reject(new Error(`Не удалось загрузить: ${url}`));
+                img.src = url;
+            });
         });
-    });
-    
-    return Promise.all(promises);
-}
+        
+            return Promise.all(promises);
+        }
         
         // Инициализация позиции Pac-Man'а
         function initPacman() {
@@ -921,48 +935,48 @@ function preloadImages() {
         }
 
         // Создание power-up ускорения
-function createSpeedPowerup() {
-    if (speedPowerupUsed) return;
-    
-    // Случайное время появления (30-60 секунд после начала игры)
-    const delay = Math.random() * 30000 + 30000;
-    
-    setTimeout(() => {
-        if (!gameActive || speedPowerupUsed) return;
-        
-        // Находим случайную свободную позицию
-        let x, y;
-        let attempts = 0;
-        do {
-            x = Math.random() * (FIELD_SIZE - 100) + 50;
-            y = Math.random() * (FIELD_HEIGHT - 100) + 50; // используем FIELD_HEIGHT
-            attempts++;
-        } while (checkDotWallCollision(x, y) && attempts < 50);
-        
-        // Создаем элемент
-        const powerupElement = document.createElement('div');
-        powerupElement.className = 'speed-powerup';
-        powerupElement.style.left = (x - 8) + 'px';
-        powerupElement.style.top = (y - 8) + 'px';
-        gameField.appendChild(powerupElement);
-        
-        speedPowerup = {
-            element: powerupElement,
-            x: x,
-            y: y,
-            collected: false
-        };
-        
-        // Убираем power-up через 5 секунд если не собран
-        setTimeout(() => {
-            if (speedPowerup && !speedPowerup.collected) {
-                speedPowerup.element.remove();
-                speedPowerup = null;
-            }
-        }, 5000);
-        
-    }, delay);
-}
+        function createSpeedPowerup() {
+            if (speedPowerupUsed) return;
+            
+            // Случайное время появления (30-60 секунд после начала игры)
+            const delay = Math.random() * 30000 + 30000;
+            
+            setTimeout(() => {
+                if (!gameActive || speedPowerupUsed) return;
+                
+                // Находим случайную свободную позицию
+                let x, y;
+                let attempts = 0;
+                do {
+                    x = Math.random() * (FIELD_SIZE - 100) + 50;
+                    y = Math.random() * (FIELD_HEIGHT - 100) + 50; // используем FIELD_HEIGHT
+                    attempts++;
+                } while (checkDotWallCollision(x, y) && attempts < 50);
+                
+                // Создаем элемент
+                const powerupElement = document.createElement('div');
+                powerupElement.className = 'speed-powerup';
+                powerupElement.style.left = (x - 8) + 'px';
+                powerupElement.style.top = (y - 8) + 'px';
+                gameField.appendChild(powerupElement);
+                
+                speedPowerup = {
+                    element: powerupElement,
+                    x: x,
+                    y: y,
+                    collected: false
+                };
+                
+                // Убираем power-up через 5 секунд если не собран
+                setTimeout(() => {
+                    if (speedPowerup && !speedPowerup.collected) {
+                        speedPowerup.element.remove();
+                        speedPowerup = null;
+                    }
+                }, 5000);
+                
+            }, delay);
+        }
 
         // Проверка сбора power-up
         function checkPowerupCollection() {
@@ -1288,27 +1302,27 @@ function createSpeedPowerup() {
 
             enemies.forEach((enemy, index) => {
     
-    if (enemy.element) {
-        enemy.x = enemyPositions[index].x;
-        enemy.y = enemyPositions[index].y;
-        enemy.direction = getRandomDirection();
-        enemy.moveCounter = 0;
-        enemy.chasing = false;
-        enemy.destroyed = false;
-        
-        // Убираем все возможные скрытия
-        enemy.element.style.display = '';
-        enemy.element.style.visibility = '';
-        enemy.element.style.opacity = '';
-        enemy.element.className = 'enemy enemy-' + index; // Восстанавливаем класс
-        
-        enemy.element.style.left = enemy.x + 'px';
-        enemy.element.style.top = enemy.y + 'px';
-        
-    } else {
-        console.log(`ОШИБКА: Элемент врага ${index} не найден!`);
-    }
-});
+            if (enemy.element) {
+                enemy.x = enemyPositions[index].x;
+                enemy.y = enemyPositions[index].y;
+                enemy.direction = getRandomDirection();
+                enemy.moveCounter = 0;
+                enemy.chasing = false;
+                enemy.destroyed = false;
+                
+                // Убираем все возможные скрытия
+                enemy.element.style.display = '';
+                enemy.element.style.visibility = '';
+                enemy.element.style.opacity = '';
+                enemy.element.className = 'enemy enemy-' + index; // Восстанавливаем класс
+                
+                enemy.element.style.left = enemy.x + 'px';
+                enemy.element.style.top = enemy.y + 'px';
+                
+            } else {
+                console.log(`ОШИБКА: Элемент врага ${index} не найден!`);
+            }
+        });
             
             // Скрыть экран окончания игры
             document.getElementById('game-over').style.display = 'none';
@@ -1592,23 +1606,23 @@ function createSpeedPowerup() {
                 scoreElement.textContent = `Счёт: ${score}`;
             }
         
-// Запуск движения
-function startMoving(newDirection) {
-    if (!gameActive || !gameStarted) return;
-    direction = newDirection;
-    isMoving = true;
-    
-    // Обновляем внешний вид Pac-Man'а с сохранением invincible
-    if (isInvincible) {
-        pacman.className = 'pacman ' + direction + ' moving invincible';
-    } else {
-        pacman.className = 'pacman ' + direction + ' moving';
-    }
-    
-    // Останавливаем предыдущий цикл и запускаем новый
-    if (gameLoop) clearInterval(gameLoop);
-    gameLoop = setInterval(movePacman, 16); // ~60 FPS
-}
+        // Запуск движения
+        function startMoving(newDirection) {
+            if (!gameActive || !gameStarted) return;
+            direction = newDirection;
+            isMoving = true;
+            
+            // Обновляем внешний вид Pac-Man'а с сохранением invincible
+            if (isInvincible) {
+                pacman.className = 'pacman ' + direction + ' moving invincible';
+            } else {
+                pacman.className = 'pacman ' + direction + ' moving';
+            }
+            
+            // Останавливаем предыдущий цикл и запускаем новый
+            if (gameLoop) clearInterval(gameLoop);
+            gameLoop = setInterval(movePacman, 16); // ~60 FPS
+        }
         
         // Остановка движения
         function stopPacman() {
@@ -1623,23 +1637,24 @@ function startMoving(newDirection) {
         
         // Обработчики кнопок управления
         document.querySelectorAll('.arrow-btn').forEach(button => {
-    button.addEventListener('click', function() {
-        const newDirection = this.getAttribute('data-direction');
-        
-        // Добавить вибрацию
-        if ('vibrate' in navigator) {
-            navigator.vibrate(50); // 50ms вибрации
-        }
+            button.addEventListener('click', function() {
+                const newDirection = this.getAttribute('data-direction');
+                
+                // Добавить вибрацию
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(50); // 50ms вибрации
+                }
 
-        // Добавить визуальную подсветку при клике мышью
-        this.classList.add('pressed');
-        setTimeout(() => {
-            this.classList.remove('pressed');
-        }, 100);
-        
-        startMoving(newDirection);
-    });
-});
+                // Добавить визуальную подсветку при клике мышью
+                this.classList.add('pressed');
+                setTimeout(() => {
+                    this.classList.remove('pressed');
+                }, 100);
+                
+                startMoving(newDirection);
+            });
+        });
+
         // Управление с клавиатуры
         document.addEventListener('keydown', function(event) {
             let newDirection = '';
