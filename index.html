@@ -42,6 +42,43 @@
             box-sizing: border-box; 
         }
 
+        /* Кнопка "Назад" */
+        .back-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #FFD700;
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #FFD700;
+            cursor: pointer;
+            z-index: 200; /* Выше всех экранов */
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .back-button:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: translateY(-2px);
+        }
+
+        .back-button:active {
+            transform: translateY(0);
+        }
+
+        .back-arrow {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .back-text {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
         .game-container {
             display: flex;
             flex-direction: column;
@@ -1064,6 +1101,8 @@ function createSpeedPowerup() {
                     enemy.moveCounter = 0;
                 }
             });
+
+                checkEnemyCollision();
         }
 
         // Получить направление к Pac-Man'у
@@ -1358,11 +1397,13 @@ function createSpeedPowerup() {
         
         // Проверка столкновения со стенами
         function checkWallCollision(newX, newY) {
+            // Уменьшаем hitbox для более точных коллизий
+            const padding = 5; // Отступ от краёв
             const pacmanRect = {
-                left: newX,
-                top: newY,
-                right: newX + PACMAN_SIZE,
-                bottom: newY + PACMAN_SIZE
+                left: newX + padding,
+                top: newY + padding,
+                right: newX + PACMAN_SIZE - padding,
+                bottom: newY + PACMAN_SIZE - padding
             };
             
             // Проверка границ поля
