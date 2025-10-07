@@ -55,7 +55,7 @@
         .close-button {
             width: 32px;
             height: 32px;
-            background: #fff;
+            background: #363636;
             border: none;
             border-radius: 50%;
             color: #000;
@@ -447,6 +447,7 @@
             cursor: pointer;
             transition: all 0.2s;
             margin-top: 0;
+            font-family: 'JetBrains Mono', monospace;
         }
 
         /* Стартовый экран */
@@ -493,6 +494,7 @@
             cursor: pointer;
             transition: all 0.2s;
             margin-top: 0;
+            font-family: 'JetBrains Mono', monospace;
         }
 
         /* Экран инструкций */
@@ -646,8 +648,18 @@
             text-align: center;
         }
 
-        .win-screen p:last-of-type {
+        .win-screen p:nth-of-type(2) {
             margin-bottom: 32px; 
+        }
+
+        .win-additional-text {
+            font-size: 11px;
+            color: #ffffff;
+            text-align: center;
+            padding: 0 20px;
+            margin-top: 20px !important;
+            margin-bottom: 0 !important;
+            line-height: 1.5;
         }
 
         h1 {
@@ -718,7 +730,7 @@
                                 <img src="./images/bonus_big.png" alt="">
                             </div>
                             <div class="instruction-text">
-                                Съешьте бонус, чтобы стать бессмертным и есть врагов
+                                Съешьте бонус, чтобы стать неуязвимым и побеждать врагов
                             </div>
                         </div>
                         <button class="start-btn" onclick="startGameFromInstructions()">Понятно, погнали</button>
@@ -745,6 +757,7 @@
                     <p>Вы выиграли супер Сплит<br> на 6 месяцев без переплат!</p>
                     <p>Ваш счёт: <span id="win-score">0</span></p>
                     <button class="restart-btn" onclick="restartGame()">Получить награду</button>
+                    <p class="win-additional-text">Лигал текст</p>
                 </div>
 
         <!-- Игровое поле -->
